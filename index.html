@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Master Exam</title>
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+    --primary: #6d28d9;
+    --primary-dark: #5b21b6;
+    --primary-light: #a78bfa;
+    --accent: #ec4899;
+    --accent-light: #f472b6;
+    --success: #10b981;
+    --success-light: #34d399;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --bg: #f0f4f8;
+    --bg-elevated: #ffffff;
+    --card-bg: #ffffff;
+    --card-hover: #f3f4f6;
+    --text: #111827;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    --border: #e5e7eb;
+    --glow: rgba(139, 92, 246, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    line-height: 1.6;
+}
+
+/* Animated mesh gradient background */
+body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.05) 0%, transparent 40%);
+    animation: meshMove 25s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes meshMove {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(3%, -3%) rotate(1deg); }
+}
+
+/* Floating particles */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+        radial-gradient(1px 1px at 20% 30%, rgba(139,92,246,0.05), transparent),
+        radial-gradient(1px 1px at 60% 70%, rgba(236,72,153,0.05), transparent);
+    background-size: 200% 200%;
+    animation: particlesFloat 40s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes particlesFloat {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+}
+
+.app-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+
+/* HEADER */
+header {
+    background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(236,72,153,0.05));
+    backdrop-filter: blur(15px);
+    padding: 32px;
+    border-radius: 20px;
+    margin-bottom: 32px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    position: sticky;
+    top: 20px;
+    border: 1px solid rgba(229,231,235,0.5);
+    transition: all 0.3s ease;
+}
+
+.header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 20px; /* Keep margin for separating title and progress */
+}
+
+h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #6d28d9 0%, #ec4899 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.gh-link {
+    /* FIX: Make link visible and styled for the new design */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    color: var(--primary-dark);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.gh-link:hover {
+    color: var(--accent);
+}
+
+.gh-link svg {
+    fill: var(--primary);
+    transition: fill 0.2s ease;
+}
+
+.badge {
+    background: var(--primary);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    color: white;
+    height: fit-content;
+}
+
+.progress-bar {
+    height: 10px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success-light), var(--success));
+    transition: width 0.4s ease-out;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+/* MAIN CONTENT */
+.quiz-body {
+    padding: 0;
+    flex: 1;
+}
+
+/* CARDS */
+.question-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 32px;
+    margin-bottom: 28px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.question-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+}
+
+.q-text {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 32px;
+    line-height: 1.5;
+    color: var(--text);
+}
+
+.options-grid {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 600px) {
+    .options-grid { 
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+button.option {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    padding: 20px;
+    border-radius: 14px;
+    text-align: left;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.5;
+    position: relative;
+}
+
+button.option:hover:not(:disabled) {
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139,92,246,0.2);
+    background: var(--card-hover);
+}
+
+button.option.correct {
+    background: #d1fae5;
+    border-color: var(--success);
+    color: #065f46; /* Darker success text */
+    font-weight: 600;
+}
+
+button.option.wrong {
+    background: #fee2e2;
+    border-color: var(--error);
+    color: #b91c1c; /* Darker error text */
+    font-weight: 600;
+}
+
+/* FEEDBACK */
+.feedback {
+    display: none;
+    margin-top: 24px;
+    padding: 24px;
+    background: var(--card-bg);
+    border-left: 4px solid var(--primary);
+    border-radius: 16px;
+    animation: fadeInUp 0.5s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border);
+}
+
+.feedback strong {
+    font-size: 1.125rem;
+    margin-bottom: 8px;
+    display: block;
+    font-weight: 700;
+}
+
+.feedback #feedbackReason {
+    display: block;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.source-tag {
+    display: block;
+    margin-top: 16px;
+    font-size: 0.85rem;
+    color: var(--primary-dark);
+    font-weight: 500;
+    font-style: italic;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+
+/* FOOTER & BUTTONS */
+.nav-footer {
+    padding: 16px;
+    background: var(--card-bg);
+    display: none;
+    justify-content: flex-end;
+    position: sticky;
+    bottom: 20px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    margin-top: 24px;
+}
+
+.next-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(109, 40, 217, 0.4);
+    transition: all 0.2s ease-in-out;
+}
+
+.next-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(139,92,246,0.3);
+}
+
+/* RESULTS */
+.results-view {
+    display: none;
+    text-align: center;
+    padding: 60px 24px;
+    background: var(--card-bg);
+    border-radius: 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    margin: 20px;
+    border: 1px solid var(--border);
+}
+
+.results-view h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+    color: var(--primary-dark);
+    background: linear-gradient(45deg, var(--primary-dark), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.results-view > p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.big-score {
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--success);
+    margin: 24px 0;
+    line-height: 1;
+}
+
+.restart-btn {
+    background: var(--primary);
+    color: white;
+    padding: 16px 40px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 32px;
+    box-shadow: 0 6px 12px rgba(109, 40, 217, 0.4);
+    transition: all 0.2s ease-in-out;
+}
+
+.restart-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+#finalMsg {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-top: 16px;
+    font-weight: 500;
+}
+
+/* Minor fix for MathJax rendering inside the options */
+.option {
+    /* Use flexbox to align text and ensure good rendering */
+    display: flex;
+    align-items: center;
+}
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header id="appHeader">
+        <div class="header-flex">
+            <div>
+                <h1>AI Master Exam:  Entire course </h1>
+                <p class="subtitle">Artificiell Intelligens (50%, omg 1) - HT25 (Samir Ahmad)</p>
+                
+                <a href="https://github.com/SamirAh90" target="_blank" class="gh-link">
+                    <svg height="16" width="16" viewBox="0 0 16 16" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
+                    GitHub @SamirAh90 | ⭐ Star Repository & Follow for More! 
+                </a>
+            </div>
+
+            <div class="badge">Q: <span id="qNum">1</span>/80</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </header>
+
+    <div class="quiz-body" id="quizBody">
+        <div class="question-card">
+            <div class="q-text" id="questionText">Loading...</div>
+            <div class="options-grid" id="optionsGrid"></div>
+        </div>
+
+        <div class="feedback" id="feedbackArea">
+            <strong id="feedbackTitle"></strong>
+            <span id="feedbackReason"></span>
+            <span class="source-tag" id="feedbackSource"></span>
+        </div>
+    </div>
+
+    <div class="nav-footer" id="navFooter">
+        <button class="next-btn" onclick="nextQ()">Nästa Fråga ➜</button>
+    </div>
+
+    <div class="results-view" id="resultsView">
+        <h2>Tentamen Slutförd!</h2>
+        <p>Slutresultat:</p>
+        <div class="big-score" id="finalScoreDisplay">0</div>
+        <p id="finalMsg"></p>
+        <button class="restart-btn" onclick="location.reload()">Starta om</button>
+    </div>
+</div>
+
+<script>
+
+/* DATABASEN FÖRLORAS INTE - JAVASCRIPT-LOGIKEN OCH DATABASEN BEHÅLLER JAG */
+const db = [
+    // ============================================================
+    // BLOCK 1: Regression Fundamentals (Source: GIK2FB 2025 AI Regression.pdf)
+    // ============================================================
+    {
+        q: "In machine learning, what is the primary purpose of Regression?",
+        opts: ["Predicting discrete categories", "Predicting continuous values", "Grouping similar objects into sets", "Inferring unknown model parameters from observed data"],
+        a: 1,
+        exp: "Regression refers to fitting a mathematical model to data to predict a continuous output variable (B), such as price or temperature. Predicting discrete categories (A) is Classification, and grouping similar objects (C) is Clustering. Inferring parameters (D) is the process of Estimation.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "What does the term 'univariate' mean in the context of Simple Linear Regression (SLR)?",
+        opts: ["The regression model uses multiple output variables", "The regression model involves only one input variable (feature)", "The model is non-linear", "The model is based on Bayesian principles"],
+        a: 1,
+        exp: "Univariate linear regression focuses on building intuition and involves only one input variable (x) to predict a single dependent variable (y) (B). Multiple output variables (A) would be Multivariate Regression. SLR is the simplest form and is linear, not non-linear (C).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "In the univariate linear regression model $y=ax+c$, what do $a$ and $c$ represent?",
+        opts: ["Data points and Loss Function", "Independent variable and Dependent variable", "Model's parameters (Slope and Intercept)", "Training data and Test data"],
+        a: 2,
+        exp: "In the model $y=ax+c$, $a$ is the slope and $c$ is the intercept. Together, they are the model's parameters that are estimated from the data (C). The input $x$ is the independent variable, and $y$ is the dependent variable (B).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "What is the primary objective when using a Loss Function in regression?",
+        opts: ["To maximize the difference between predicted and true values", "To guide the learning process by measuring the error, aiming for a smaller loss", "To determine if the relationship is causal or correlative", "To estimate the population mean from a sample"],
+        a: 1,
+        exp: "A Loss Function measures the error between predicted outputs and true values, guiding the model's parameter optimization. The goal is always to achieve a smaller loss for a better model (B). Maximizing error (A) is counterproductive. Causality (C) is a separate question in regression analysis.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "Which term is NOT used as a synonym for the independent variable ($x$) in machine learning parlance?",
+        opts: ["Predictor", "Regressor", "Feature", "Target"],
+        a: 3,
+        exp: "The independent variable ($x$) is known as the predictor, regressor, or feature. The Target (D) is a synonym for the dependent variable ($y$).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "In the context of the OLS (Ordinary Least Squares) method for simple linear regression, what mathematical quantity is minimized?",
+        opts: ["The sum of absolute errors", "The Residual Sum of Squares (RSS)", "The difference between slope and intercept", "The number of data points"],
+        a: 1,
+        exp: "OLS aims to find the best-fitting line by minimizing the Residual Sum of Squares (RSS) (B). RSS is the sum of the squared differences between the observed $y_i$ and the predicted $y_i$. Minimizing the sum of absolute errors (A) is the goal of Mean Absolute Error (MAE), not OLS.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "What is the key characteristic of the loss function $\\sum_{j}(y_{j}-w_{1}x_{j}+w_{0})^{2}$ as seen in Figure 19.13(b)?",
+        opts: ["It is non-convex with many local minima", "It is convex with a single global minimum", "It requires prior information about the parameters", "It is only suitable for non-linear regression"],
+        a: 1,
+        exp: "The squared-error loss function for linear regression is noted to be convex, possessing a single global minimum (B). This is advantageous for optimization because algorithms can easily find the best parameter values ($w_0, w_1$) without getting stuck in local minima (A).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "Linear regression serves as a gateway to what kind of more complex models?",
+        opts: ["Classification models only", "Unsupervised models like K-Means", "Neural networks or probabilistic models", "Simple reflex agents"],
+        a: 2,
+        exp: "The understanding gained from linear regression, being simple and extensible, is crucial as it serves as a gateway to more complex models, such as neural networks or probabilistic models (C). It is a supervised learning task (A) and is not directly linked to unsupervised models (B) or agent structures (D).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "Which of these is NOT an example of 'Beyond Simple Linear Regression' mentioned in the material?",
+        opts: ["Polynomial Regression", "Multiple Linear Regression", "Quantile Regression", "Clustering Regression"],
+        a: 3,
+        exp: "Polynomial Regression, Multiple Linear Regression, and Quantile Regression are all types of regression that go beyond the simple univariate model. 'Clustering Regression' (D) is not a recognized type mentioned in the material. Clustering is a separate ML task.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "What does Multiple Linear Regression involve?",
+        opts: ["One dependent variable and one independent variable", "Multiple dependent variables", "One dependent variable but multiple independent variables (features)", "Using only categorical variables"],
+        a: 2,
+        exp: "Multiple Linear Regression is defined as having one dependent variable ($y$) but multiple independent variables or features (C). Multiple dependent variables (B) would be Multivariate Linear Regression.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "What is a key benefit of Quantile Regression?",
+        opts: ["Predicting only the mean of the target variable", "Modeling non-linear relationships with powers of the input", "Predicting specific quantiles (e.g., median) of the target variable and being robust to outliers", "Predicting a whole range of plausible functions"],
+        a: 2,
+        exp: "Quantile Regression is designed to predict specific quantiles (like the median) of the target variable, making it robust to outliers (C). Predicting only the mean (A) is typical of OLS. Modeling non-linear relationships (B) is for Polynomial Regression.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "Which regression technique predicts a whole range of plausible functions instead of just one best-fit line?",
+        opts: ["Polynomial Regression", "Multiple Linear Regression", "Gaussian Process Regression", "Bayesian Ridge Regression"],
+        a: 2,
+        exp: "Gaussian Process Regression (GPR) predicts a range of plausible functions (C), making it a probabilistic non-linear model, though it is noted to be beyond the scope of the course. Polynomial Regression (A) models non-linear relationships with powers of the input.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "What does a high Coefficient of Determination ($R^2$) value suggest in a regression model?",
+        opts: ["The model is non-linear", "The model is a good fit to the data", "The model is suffering from overfitting", "The model uses only one independent variable"],
+        a: 1,
+        exp: "A high $R^2$ value (like $R^2=0.93$ in the example) suggests that the model is a good fit for the data, as it explains a large portion of the variance in the dependent variable (B). It indicates the model has strong predictive power, not necessarily that it is non-linear (A) or overfit (C).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "What are common Loss Functions used for regression?",
+        opts: ["Cross-Entropy and Log Loss", "Mean Squared Error (MSE) and Mean Absolute Error (MAE)", "Gini Impurity and Information Gain", "Accuracy and F1-Score"],
+        a: 1,
+        exp: "Mean Squared Error (MSE) and Mean Absolute Error (MAE) are common loss functions specifically designed for regression tasks (B). Cross-Entropy and Log Loss (A) are used for classification, as are Gini Impurity (C) and Accuracy/F1-Score (D).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+    {
+        q: "According to the material, what are the two key Estimation Techniques that will be covered?",
+        opts: ["Ordinary Least Squares (OLS) and Gradient Descent", "Maximum Likelihood (ML) and Maximum A Posteriori (MAP)", "Bayesian Ridge Regression and Gaussian Process Regression", "Mean Absolute Error (MAE) and Residual Sum of Squares (RSS)"],
+        a: 1,
+        exp: "The key estimation techniques scheduled for the lecture are Maximum Likelihood (ML) and Maximum A Posteriori (MAP) (B). OLS (A) is a foundational method, not a general estimation technique, and the last two options are specific regression models or loss metrics.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+
+    // ============================================================
+    // BLOCK 2: Bayes' Theorem & Naive Bayes (Source: GIK2FB 2025 AI Regression Bayes.pdf)
+    // ============================================================
+    {
+        q: "In Bayes' theorem, $P(A|B)=\\frac{P(B|A)P(A)}{P(B)}$, what is $P(A|B)$ called?",
+        opts: ["Prior Probability", "Marginal Probability", "Posterior Probability of A given B", "Likelihood of A given B"],
+        a: 2,
+        exp: "The term $P(A|B)$ is the conditional probability of event A occurring given that B is true, and it is also called the posterior probability of A given B (C). $P(A)$ (A) is the prior probability, and $P(B|A)$ is the likelihood (D).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "In Bayes' theorem, what does $P(B|A)$ represent?",
+        opts: ["The unconditional probability of B", "The overall probability that A occurs", "The Likelihood of A given a fixed B", "The marginal probability of B"],
+        a: 2,
+        exp: "The term $P(B|A)$ is the conditional probability of B given A, which can be interpreted as the Likelihood of A given a fixed B (C). $P(A)$ and $P(B)$ (A, D) are the unconditional/marginal probabilities.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "What does the term 'Naive' refer to in the Naive Bayes classifier?",
+        opts: ["The algorithm is simple and slow", "The features are modeled as independent", "The model does not use Bayes' theorem", "The model requires labeled data"],
+        a: 1,
+        exp: "The 'Naive' assumption is that the features (the corresponding random variables) are modeled as independent (B), regardless of whether they actually are. This simplifies the computation significantly.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "In the spam email example, if there is no prior information available, how do $P(S)$ and $P(H)$ simplify?",
+        opts: ["$P(S)=1$ and $P(H)=0$", "They cancel out because $P(S)=P(H)=1/2$", "They are removed from the numerator", "They are set to 0.01 to avoid zero probabilities"],
+        a: 1,
+        exp: "Without any other prior information, the assumption is that the probability of being spam ($P(S)$) and the probability of being 'ham' ($P(H)$) are equal, i.e., $1/2$ (B). This causes them to cancel out in the simplified Bayes' formula for spam filtering.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "What is Bayesian modeling primarily useful for, as stated in the material?",
+        opts: ["Estimating parameters when data is abundant and certainty is high", "Estimating only the mean of a probability distribution", "Incorporating prior beliefs and updating them with observed data, useful with uncertainty or limited data", "Simplifying regression to a single independent variable"],
+        a: 2,
+        exp: "Bayesian modeling incorporates prior beliefs about model parameters and updates them using observed data to yield a posterior distribution. This is stated to be useful when dealing with uncertainty or limited data (C). Simplifying regression (D) is not the core idea of Bayesian modeling.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+
+    // ============================================================
+    // BLOCK 3: Parameter Estimation (Source: GIK2FB 2025 AI Regression Bayes.pdf)
+    // ============================================================
+    {
+        q: "What is the key difference between Maximum Likelihood Estimation (MLE) and Maximum A Posteriori (MAP) Estimation?",
+        opts: ["MAP maximizes the likelihood function, while MLE minimizes it", "MLE incorporates prior knowledge (prior distribution $g(\\theta)$), while MAP does not", "MAP incorporates prior knowledge (prior distribution $g(\\theta)$), while MLE does not", "MLE is only for discrete data, while MAP is for continuous data"],
+        a: 2,
+        exp: "Maximum A Posteriori (MAP) Estimation incorporates prior knowledge about the parameter ($\\theta$) via the prior density function $g(\\theta)$ (C). Maximum Likelihood Estimation (MLE) maximizes the likelihood function $f(x|\\theta)$ *without* any such prior distribution.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "What is the goal of Maximum Likelihood Estimation (MLE)?",
+        opts: ["To maximize the posterior distribution $f(\\theta|x)$", "To find the value of $\\theta$ that maximizes the likelihood function $f(x|\\theta)$", "To minimize the squared error loss", "To maximize the product of the likelihood and the prior density"],
+        a: 1,
+        exp: "MLE aims to find the parameter value ($\\hat{\\theta}_{MLE}$) that maximizes the likelihood function $f(x|\\theta)$ (B), essentially choosing the parameter that makes the observed data ($x$) most likely. Maximizing the posterior (A) or the product (D) is the goal of MAP estimation.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "The Maximum A Posteriori (MAP) estimate is defined by the formula:",
+        opts: ["$\\tilde{\\theta}_{MAP}(x)=arg\\,max_{\\theta}f(x|\\theta)$", "$\\hat{c}=\\overline{y}-\\hat{a}\\overline{x}$", "$\\tilde{\\theta}_{MAP}(x)=arg\\,max_{\\theta}f(\\theta|x)$", "$RSS=\\sum_{i=1}^{n}(y_{i}-(ax_{i}+c))^{2}$"],
+        a: 2,
+        exp: "The MAP estimate ($\\tilde{\\theta}_{MAP}$) is the value of $\\theta$ that maximizes the posterior distribution $f(\\theta|x)$ (C). It is also equal to $arg\\,max_{\\theta}f(x|\\theta)g(\\theta)$ (product of likelihood and prior). Option A is the formula for MLE.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "What relationship exists between the OLS estimate and the MLE estimate for the typical simple linear regression model?",
+        opts: ["They are always completely different", "OLS is typically twice the value of MLE", "The OLS estimate coincides with the MLE estimate", "There is no known relationship between the two"],
+        a: 2,
+        exp: "The OLS estimate (Ordinary Least Squares) is noted to coincide (be the same as) the MLE estimate for the typical simple linear regression model (C).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "Estimation is defined as:",
+        opts: ["A method for simplifying complex non-linear models", "The process of inferring unknown model parameters from observed data", "A type of supervised learning task only used for classification", "The final result of a regression model after training"],
+        a: 1,
+        exp: "Estimation is the process of inferring unknown model parameters (like slope $a$ and intercept $c$) from the observed data (B). The goal is to compute estimates of these parameters.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression.pdf"
+    },
+
+    // ============================================================
+    // BLOCK 4: Scikit-learn & Applications (Source: GIK2FB 2025 AI Regression Bayes.pdf)
+    // ============================================================
+    {
+        q: "What is the primary application of Classification, according to the Scikit-learn examples?",
+        opts: ["Drug response", "Customer segmentation", "Spam detection and image recognition", "Stock prices"],
+        a: 2,
+        exp: "Classification is used for identifying which category an object belongs to, with applications including Spam detection and image recognition (C). Drug response (A) and stock prices (D) are listed as applications for Regression.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "Which algorithms are listed as applications for Regression in the Scikit-learn guide?",
+        opts: ["k-Means and HDBSCAN", "Gradient boosting and nearest neighbors", "Logistic regression and random forest", "Linear Regression and Hierarchical Clustering"],
+        a: 1,
+        exp: "Algorithms for Regression include Gradient boosting, nearest neighbors, random forest, and ridge (B). k-Means and HDBSCAN (A) are for Clustering. Logistic regression (C) is typically a Classification algorithm.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "According to the material, what are the primary tools used in the lab assignment?",
+        opts: ["R and RStudio", "Excel and Python", "Python and Jupyter Notebook (JNB)", "MATLAB and Simulink"],
+        a: 2,
+        exp: "The lab assignment uses Python and Jupyter Notebook (JNB) (C), with the focus being on the Scikit-learn library.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "What distinguishes Bayesian Ridge Regression from standard Linear Regression methods like OLS?",
+        opts: ["Bayesian Ridge is non-linear", "Bayesian Ridge includes prior information about the parameters ($\\alpha$ and $\\lambda$)", "Bayesian Ridge does not use a loss function", "Bayesian Ridge only works with categorical data"],
+        a: 1,
+        exp: "Bayesian Ridge Regression is a Bayesian approach, meaning it incorporates prior distributions for its parameters ($\\alpha$ and $\\lambda$) and updates them with data (B). OLS, in contrast, is non-Bayesian (MLE).",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    {
+        q: "The plot comparing Linear Trend vs. Actual Trend for coffee sales (Slide 5) suggests that the simple linear model ($y=ax+c$) is:",
+        opts: ["An optimal model with the highest $R^2$", "A good model because the data points follow a general linear path", "Clearly not a good model because the actual trend is highly non-linear", "The only model that can be used for this type of data"],
+        a: 2,
+        exp: "In the coffee sales example, the data shows a clear non-linear, periodic pattern (C). The dashed green line ($y=ax+c$) is visually far from the actual trend, indicating it is 'clearly not a good model' for this data.",
+        src: "Source: GIK2FB 2025 Artificial Intelligence Regression Bayes.pdf"
+    },
+    // ============================================================
+    // BLOCK 1 (from second db): Unsupervised Learning & Clustering
+    // ============================================================
+    {
+        q: "Which learning based method is suitable for identifying patterns in unknown data?",
+        opts: ["Supervised", "Unsupervised", "Detection based algorithm", "Decision tree"],
+        a: 1,
+        exp: "Unsupervised learning is used to find hidden patterns or structures in data that lacks predefined labels (unknown data). Supervised learning requires labeled data (A). A Decision Tree (D) is a supervised algorithm, and Detection-based algorithm (C) is a generic term, not a primary learning category.",
+        src: "Source: Unsupervised Learning"
+    },
+    {
+        q: "What is association mining?",
+        opts: ["Splitting the dataset into groups based on similarity", "Identifying unusual data points in a data set", "Identifying sets of items in a dataset that frequently occur together", "Identifying usual data points in a dataset"],
+        a: 2,
+        exp: "Association Mining, typically using algorithms like Apriori or ECLAT, aims to discover frequent itemsets—items that appear together often (e.g., 'If A and B are bought, C is often bought'). Splitting into groups (A) is Clustering, and identifying unusual points (B) is Anomaly Detection.",
+        src: "Source: Association Mining"
+    },
+    {
+        q: "Which approach is used in agglomerative clustering?",
+        opts: ["Top-down approach", "Random approach", "Bottom-up approach", "Clustering approach"],
+        a: 2,
+        exp: "Agglomerative clustering is a 'bottom-up' method: it starts with individual points as clusters and merges the closest clusters sequentially. The Top-down approach (A) is used in Divisive clustering. Random approach (B) is often used for initialization in K-Means, not the core mechanism of Agglomerative clustering.",
+        src: "Source: Hierarchical Clustering"
+    },
+    {
+        q: "Are dendrograms primarily used to determine the optimal number of clusters?",
+        opts: ["True", "False"],
+        a: 0,
+        exp: "True. Dendrograms visualize the sequence of cluster merges, allowing a user to visually select an optimal number of clusters by deciding where to 'cut' the tree, maximizing distance between clusters.",
+        src: "Source: Dendrograms"
+    },
+    {
+        q: "Does divisive clustering use random starting points?",
+        opts: ["True", "False"],
+        a: 1,
+        exp: "False. Divisive clustering (top-down) starts with one large cluster and recursively splits it based on maximum dissimilarity. Random initialization is characteristic of partitioning methods like K-Means.",
+        src: "Source: Hierarchical Clustering"
+    },
+    {
+        q: "Is Sum-of-squares-error (SSE) used as a key metric in the Elbow method?",
+        opts: ["True", "False"],
+        a: 0,
+        exp: "True. The Elbow method plots SSE (Sum of Squared Errors) against the number of clusters (K). The optimal K is typically found at the 'elbow' point where the rate of decrease in SSE sharply slows down. SSE is a measure of cluster cohesion.",
+        src: "Source: Elbow Method"
+    },
+    {
+        q: "ECLAT algorithm is related to:",
+        opts: ["Association mining", "Agglomerative clustering", "K-Means clustering", "K-Means plus clustering"],
+        a: 0,
+        exp: "ECLAT (Equivalence Class Clustering and bottom-up Lattice Traversal) is an algorithm specifically designed for Association Mining to efficiently find frequent itemsets. It is not a type of clustering (B, C, D) but a technique for finding relationships.",
+        src: "Source: Association Mining"
+    },
+    {
+        q: "Dimensionality reduction techniques like PCA are examples of:",
+        opts: ["Supervised Learning", "Unsupervised Learning", "Reinforcement Learning", "Semi-Supervised Learning"],
+        a: 1,
+        exp: "Dimensionality reduction, such as Principal Component Analysis (PCA), aims to find structure and simplify data without relying on predefined labels, making it an Unsupervised Learning task. Supervised learning (A) requires output labels.",
+        src: "Source: Dimensionality Reduction (Unsupervised)"
+    },
+    {
+        q: "Which learning approach is used in anomaly detection?",
+        opts: ["Supervised learning", "Unsupervised learning", "Both A and B", "None of the above"],
+        a: 2,
+        exp: "Anomaly Detection can be performed using Supervised methods (if 'normal' and 'anomaly' samples are both labeled) or Unsupervised methods (if only 'normal' data is available and the algorithm detects outliers). Thus, both approaches (C) are used.",
+        src: "Source: Anomaly Detection"
+    },
+
+    // ============================================================
+    // BLOCK 2 (from second db): AI Foundations (Turing, Agents, Rationality)
+    // ============================================================
+    {
+        q: "Which answer best fits the AI approach of 'making systems act rationally' (Acting Rationally)?",
+        opts: ["Confusion between AI and cognitive science approaches", "The Turing Test", "Aristotle’s laws of thought", "Rational agents acting to achieve best outcomes"],
+        a: 3,
+        exp: "The 'Acting Rationally' approach focuses on designing Rational Agents (D) that maximize their expected performance measure based on the information they have. The Turing Test (B) relates to Acting Humanly, and Aristotle’s laws (C) relate to Thinking Rationally.",
+        src: "Source: Four approaches to AI"
+    },
+    {
+        q: "Which answer best fits the AI approach of 'making systems think rationally' (Thinking Rationally)?",
+        opts: ["Cognitive science interaction", "The Turing Test", "Aristotle’s syllogisms and logic", "Rational agent behavior"],
+        a: 2,
+        exp: "The 'Thinking Rationally' approach (Laws of Thought) relies on formal logic and inference rules, stemming from Aristotle's syllogisms, to ensure correct reasoning (C). Cognitive science (A) relates to Thinking Humanly, and Rational Agent behavior (D) relates to Acting Rationally.",
+        src: "Source: Four approaches to AI"
+    },
+    {
+        q: "Which answer best fits the AI approach of getting machines to think like humans (Thinking Humanly: Cognitive Modeling)?",
+        opts: ["Cognitive modeling and human performance comparison", "The Turing Test", "Laws of thought", "Rational agent framework"],
+        a: 0,
+        exp: "The 'Thinking Humanly' approach requires Cognitive Modeling (A)—attempting to replicate the internal processes of the human mind, often through psychology and neuroscientific data. The Turing Test (B) is for Acting Humanly, while Laws of thought (C) and Rational Agent framework (D) are about rationality, not human imitation.",
+        src: "Source: Four approaches to AI"
+    },
+    {
+        q: "What new concept was introduced at the Dartmouth Conference (1956)?",
+        opts: ["Cybernetics", "Expert systems", "Artificial Intelligence", "Machine Learning", "Neural Networks", "Robotics"],
+        a: 2,
+        exp: "The term 'Artificial Intelligence' (C) was coined by John McCarthy at the Dartmouth Summer Research Project in 1956, officially establishing the field. Other concepts like Expert Systems (B) and Neural Networks (E) were developed later or existed under different names.",
+        src: "Source: History of AI (Dartmouth)"
+    },
+    {
+        q: "What term describes periods of reduced AI funding?",
+        opts: ["AI Hibernation", "AI Recession", "AI Winters", "AI Dormancy"],
+        a: 2,
+        exp: "Periods of reduced optimism and subsequent funding cuts in AI history are known as 'AI Winters' (C). The other terms (A, B, D) are not the standard historical term used in the field.",
+        src: "Source: History of AI (AI Winters)"
+    },
+    {
+        q: "What defines a rational agent in AI?",
+        opts: ["Acts randomly", "Maximizes performance measure", "Minimizes resource usage", "Operates without percepts"],
+        a: 1,
+        exp: "A rational agent is defined as one that chooses the action that is expected to maximize its performance measure (B), given the percept sequence and prior knowledge. Acting randomly (A) is irrational. Minimizing resource usage (C) may be part of the performance measure but is not the sole definition.",
+        src: "Source: Rational Agents"
+    },
+    {
+        q: "A rational [X] chooses the action that maximizes expected utility. What replaces [X]?",
+        opts: ["Utility-based agent", "Simple reflex agent", "Model-based reflex agent", "Goal-based agent"],
+        a: 0,
+        exp: "A Utility-Based Agent (A) uses a Utility Function to assign a real number (degree of 'happiness') to a state and maximizes this value, allowing trade-offs between conflicting goals (like speed vs. safety). Simple Reflex (B) and Model-Based Reflex (C) only react to percepts or internal state, while Goal-Based agents (D) only aim for a specific goal state, not maximizing overall value.",
+        src: "Source: Agent Types"
+    },
+    {
+        q: "What does the term 'bounded rationality' refer to?",
+        opts: ["Rational decisions with complete information", "Limits to resources for informed decisions", "Perfectly logical AI behaviour", "Systems acting unpredictably"],
+        a: 1,
+        exp: "Bounded rationality (B) acknowledges that a real-world agent has practical limitations—finite time, memory, and computational resources—which constrain its ability to make perfectly optimal decisions, even if it tries to be rational. Complete information (A) is an unrealistic assumption.",
+        src: "Source: Bounded Rationality"
+    },
+    {
+        q: "Which of the following is a fundamental characteristic of intelligent systems in AI?",
+        opts: ["Ability to simulate emotions", "Embedded internet connectivity", "Robotic functionality", "Execution of complex physical tasks"],
+        a: 3,
+        exp: "The ability to execute complex tasks (D), whether physical or cognitive, is a hallmark of intelligence and the core goal of AI. Simulating emotions (A) is an advanced but not fundamental requirement; connectivity (B) and robotic functionality (C) are implementation details, not core characteristics.",
+        src: "Source: Intelligent Systems"
+    },
+    {
+        q: "A simple reflex agent in a partially observable environment will:",
+        opts: ["Always make optimal decisions", "Learn from past experiences", "Potentially make poor decisions due to incomplete information", "Require a model of world evolution"],
+        a: 2,
+        exp: "A simple reflex agent acts only on the current percept, ignoring history. In a partially observable environment, it lacks the full context, leading to suboptimal or poor decisions (C). Learning (B) and a world model (D) belong to Model-Based or Learning Agents.",
+        src: "Source: Agent Types (Simple Reflex)"
+    },
+    {
+        q: "In a medical diagnosis system, which functions as an actuator?",
+        opts: ["Displaying diagnoses", "Input of symptoms", "Patient–doctor interaction", "None of the above"],
+        a: 0,
+        exp: "Actuators are the means by which the agent acts upon its environment. In a digital system, 'acting' means generating an output, such as displaying the diagnosis or a recommended treatment plan (A). Input of symptoms (B) is a sensor function.",
+        src: "Source: PEAS Framework (Actuators)"
+    },
+    {
+        q: "In a self-driving car system, the steering and accelerator are sensors.",
+        opts: ["True", "False"],
+        a: 1,
+        exp: "False. The steering wheel and accelerator are Actuators (action mechanisms) that execute the agent's plan to change the environment (car movement). Sensors include cameras, GPS, and LiDAR, which provide percepts to the agent.",
+        src: "Source: PEAS Framework (Sensors/Actuators)"
+    },
+
+    // ============================================================
+    // BLOCK 3 (from second db): Supervised Learning (k-NN, Decision Trees, Evaluation)
+    // ============================================================
+    {
+        q: "What does a confusion matrix help assess?",
+        opts: ["Quality of training data", "Model performance", "Distance metric in k-NN", "Best value for k"],
+        a: 1,
+        exp: "A Confusion Matrix is a table used to visualize the performance of a classification algorithm (B) by showing the counts of True Positives, True Negatives, False Positives, and False Negatives. It does not assess data quality (A) or k-NN specific parameters (C, D).",
+        src: "Source: Confusion Matrix"
+    },
+    {
+        q: "What is the purpose of normalizing data before using k-NN?",
+        opts: ["Make algorithm faster", "Improve visualization", "Bring features to same scale", "Avoid missing values"],
+        a: 2,
+        exp: "k-NN is highly sensitive to the scale of features because it relies on distance calculation. Normalization (C) ensures that all features contribute proportionally to the distance, preventing features with large values from dominating the result. It does not directly affect speed (A) or handle missing values (D).",
+        src: "Source: k-NN Preprocessing"
+    },
+    {
+        q: "In a decision tree, what does a leaf node represent?",
+        opts: ["Input variable", "Output prediction", "Split point", "Feature set"],
+        a: 1,
+        exp: "A leaf node (B) is a terminal node in a decision tree that holds the final classification or predicted value for the data that reaches it. Internal nodes (A, C) represent input features or the split condition, not the final output.",
+        src: "Source: Decision Trees"
+    },
+    {
+        q: "Why is Gini impurity important in decision trees?",
+        opts: ["Faster tree building", "Reduces dataset size", "Identifies best split points", "Eliminates redundant features"],
+        a: 2,
+        exp: "Gini impurity (or Information Gain) is the metric used to measure the 'unmixed' nature of a node. The algorithm chooses the feature split that results in the lowest Gini impurity (or highest gain) to determine the best split points (C).",
+        src: "Source: Gini Impurity"
+    },
+    {
+        q: "What is a True Positive in a confusion matrix?",
+        opts: ["Correct positive prediction", "Correct negative prediction", "Incorrect positive prediction", "Incorrect negative prediction"],
+        a: 0,
+        exp: "A True Positive (A) occurs when the model correctly predicts the positive class (e.g., predicted 'disease' and the actual state was 'disease'). Incorrect predictions are False Positives (C) or False Negatives (D).",
+        src: "Source: Confusion Matrix"
+    },
+    {
+        q: "Weather prediction scenario (rain predicted, but no rain occurs). What outcome is this?",
+        opts: ["True Positive", "True Negative", "False Positive", "False Negative"],
+        a: 2,
+        exp: "The model predicted 'Positive' (rain), but the actual outcome was 'Negative' (no rain). This is an incorrect positive prediction, defined as a False Positive (Type I Error) (C). True Positive (A) would be rain predicted and rain occurred.",
+        src: "Source: Confusion Matrix"
+    },
+    {
+        q: "Which validation technique divides data into k equal-sized subsets?",
+        opts: ["Random Subsampling", "Leave-One-Out CV", "K-Fold Cross-Validation", "Confusion Matrix Analysis"],
+        a: 2,
+        exp: "K-Fold Cross-Validation (C) splits the dataset into K folds (subsets). The process repeats K times, using K-1 folds for training and the remaining fold for validation. Leave-One-Out (B) is a special case where K equals the number of samples.",
+        src: "Source: K-Fold CV"
+    },
+    {
+        q: "Which is an example of supervised learning?",
+        opts: ["Customer clustering", "Predicting house prices", "Pattern discovery in raw data", "Image segmentation"],
+        a: 1,
+        exp: "Predicting house prices (B) is a regression task where the output (price) is a known, continuous label, requiring supervised learning. Customer clustering (A) and pattern discovery (C) are unsupervised. Image segmentation (D) can be both, but prediction on labeled outcomes is the clearest example of supervised learning here.",
+        src: "Source: Supervised Learning"
+    },
+    {
+        q: "Which is NOT a supervised learning algorithm?",
+        opts: ["Linear Regression", "Decision Tree", "K-Means Clustering", "Support Vector Machine"],
+        a: 2,
+        exp: "K-Means Clustering (C) is an Unsupervised Learning algorithm used for partitioning data into groups without relying on labeled data. Linear Regression (A), Decision Trees (B), and SVM (D) are all methods for supervised tasks (regression or classification).",
+        src: "Source: Learning Algorithms"
+    },
+    {
+        q: "Regression is typically used to predict continuous target variables.",
+        opts: ["True", "False"],
+        a: 0,
+        exp: "True. Regression models predict continuous, numerical outcomes (e.g., temperature, sales volume, price). Classification models, in contrast, predict discrete, categorical outcomes (e.g., yes/no, spam/not spam).",
+        src: "Source: Regression"
+    },
+    {
+        q: "When dealing with a loss function, the goal is to: ",
+        opts: ["Maximize squared errors", "Maximize sum of squared errors", "Minimize square of summed errors", "Minimize sum of squared errors"],
+        a: 3,
+        exp: "The objective of training a machine learning model is to optimize its parameters by minimizing its Loss Function (D), which quantifies the difference between the model's predictions and the true values. Maximizing errors (A, B) would make the model worse.",
+        src: "Source: Loss Function"
+    },
+    {
+        q: "For argument x and function f(x), arg max f(x) denotes:",
+        opts: ["The input x that maximizes f(x)", "The output value of f(x)", "The maximum x value", "The maximum output of f(x)"],
+        a: 0,
+        exp: "Argmax returns the input value (x) that produces the maximum output value for the function f(x) (A). Options B and D describe the maximum output value itself, not the input that produced it.",
+        src: "Source: Mathematical Notation"
+    },
+
+    // ============================================================
+    // BLOCK 4 (from second db): Clustering Limitations & Linkage
+    // ============================================================
+    {
+        q: "What is a limitation of K-Means compared to agglomerative clustering?",
+        opts: ["Cannot handle large datasets", "Expensive for small datasets", "Sensitive to k and initial centroids", "Always overlapping clusters"],
+        a: 2,
+        exp: "K-Means requires the number of clusters (k) to be specified beforehand, and its final cluster assignments can be sensitive to the initial placement of the centroids (C). Agglomerative clustering (D) usually produces non-overlapping clusters, and K-Means is generally efficient for large datasets (A).",
+        src: "Source: K-Means Limitations"
+    },
+    {
+        q: "Which metric is used in agglomerative clustering to decide cluster merging? ",
+        opts: ["Silhouette score", "Linkage criteria", "PCA", "SSE"],
+        a: 1,
+        exp: "The Linkage Criteria (B) defines the distance between two clusters (e.g., Single, Complete, or Average) and determines which clusters are merged at each step. SSE (D) is typically used for K-Means, and Silhouette score (A) is used for external evaluation.",
+        src: "Source: Hierarchical Clustering (Linkage)"
+    },
+    {
+        q: "Which is NOT a linkage criterion in agglomerative clustering?",
+        opts: ["Single linkage", "Complete linkage", "Average linkage", "K-Means linkage"],
+        a: 3,
+        exp: "K-Means Linkage (D) is not a standard distance metric (linkage criterion) used in hierarchical agglomerative clustering. The common ones (Single, Complete, Average, Ward) define how to measure the separation between two groups of data points.",
+        src: "Source: Hierarchical Clustering (Linkage)"
+    },
+    {
+        q: "In K-Means clustering, initial centroid placement affects:",
+        opts: ["Final cluster assignments", "Linkage method", "Computational complexity", "Hierarchical structure"],
+        a: 0,
+        exp: "Since K-Means is an iterative optimization algorithm that seeks a local optimum, the starting position of the centroids significantly influences the final cluster partitioning (A). Linkage (B) and Hierarchical structure (D) relate to agglomerative clustering.",
+        src: "Source: K-Means"
+    },
+    {
+        q: "What is the key objective of K-Means clustering?",
+        opts: ["Minimize number of clusters", "Maximize distance between centroids", "Minimize sum of squared distances to centroids"],
+        a: 2,
+        exp: "The K-Means algorithm is designed to minimize the Sum of Squared Errors (SSE), which is the sum of the squared distances from each data point to the centroid of the cluster it belongs to (C). The goal is to maximize the cohesion within clusters, not to maximize distance between centroids (B).",
+        src: "Source: K-Means Objective"
+    },
+    {
+        q: "Which scenario best suits agglomerative clustering?",
+        opts: ["Large spherical datasets", "Datasets with hierarchical relationships", "High-dimensional data needing PCA", "Fixed cluster centroids"],
+        a: 1,
+        exp: "Agglomerative clustering is uniquely suited for datasets where the goal is to visualize or analyze the inherent hierarchical structure (B) of the data, as shown in a dendrogram. K-Means is often preferred for large, spherical datasets (A).",
+        src: "Source: Hierarchical Clustering"
+    },
+
+    // ============================================================
+    // BLOCK 5 (from second db): Reinforcement Learning & Search
+    // ============================================================
+    {
+        q: "What is the primary goal of an agent in reinforcement learning? [Image of Reinforcement learning loop]",
+        opts: ["To minimize the number of actions taken", "To learn a policy that maximizes cumulative reward", "To follow a predefined path", "To avoid exploration"],
+        a: 1,
+        exp: "The core objective of an RL agent is to find an optimal Policy (strategy) that yields the maximum cumulative (total) reward over the long term (B). The agent must perform actions (A) and often needs to explore (D) to achieve this goal.",
+        src: "Source: Reinforcement Learning (Goal)"
+    },
+    {
+        q: "The value function estimates the expected reward of a state or state-action pair.",
+        opts: ["True", "False"],
+        a: 0,
+        exp: "True. The Value Function estimates the total future discounted reward an agent can expect to receive starting from a particular state (V(s)) or by taking a specific action in that state (Q(s,a)).",
+        src: "Source: Reinforcement Learning (Value Function)"
+    },
+    {
+        q: "Which of the following is a model-free reinforcement learning algorithm?",
+        opts: ["Value iteration", "Q-learning", "Policy gradient", "Dynamic programming"],
+        a: 1,
+        exp: "Q-learning (B) is a popular model-free algorithm, meaning the agent learns the optimal policy without building an explicit model of the environment (the transition probabilities and reward function). Value Iteration (A) and Dynamic Programming (D) are model-based.",
+        src: "Source: Reinforcement Learning (Q-Learning)"
+    },
+    {
+        q: "In reinforcement learning, what is the role of an action-value function?",
+        opts: ["It predicts future states", "It estimates the expected reward of taking an action in a given state", "It selects the best action deterministically", "It generates a random action"],
+        a: 1,
+        exp: "The Action-Value Function (or Q-function) estimates the expected total future reward (B) for being in a state 's' and taking a specific action 'a'. This estimation is crucial for decision-making under uncertainty.",
+        src: "Source: Reinforcement Learning (Q-Function)"
+    },
+    {
+        q: "Which best describes the exploration–exploitation tradeoff?",
+        opts: ["Choosing between exploring new actions and exploiting known rewards", "Balancing deterministic and stochastic policies", "Maximizing short-term vs long-term rewards", "Adjusting the learning rate"],
+        a: 0,
+        exp: "This is the fundamental dilemma in RL: should the agent stick to actions known to yield high rewards (Exploitation) or try new, potentially better, but unknown actions (Exploration)? (A). This is distinct from short-term vs. long-term rewards (C), which is controlled by the discount factor.",
+        src: "Source: Exploration-Exploitation"
+    },
+    {
+        q: "What is the purpose of the discount factor $\\gamma$ (gamma)?",
+        opts: ["To prioritize immediate rewards over future rewards", "To control how often the policy updates", "To determine exploration frequency", "To adjust the learning rate"],
+        a: 0,
+        exp: "The discount factor ($\\gamma$) determines the present value of future rewards. A value less than 1 (A) prioritizes immediate rewards over delayed ones, making the agent 'myopic' or focused on the short term. It does not control policy updates (B) or exploration (C).",
+        src: "Source: Reinforcement Learning (Gamma)"
+    },
+    {
+        q: "Which reinforcement learning method directly learns a policy without estimating a value function?",
+        opts: ["Temporal difference learning", "Policy gradient methods", "Q-learning", "Value iteration"],
+        a: 1,
+        exp: "Policy Gradient methods (B) directly learn and optimize the policy (mapping from state to action) without explicitly calculating the value of each state or action. Q-learning (C) and Value iteration (D) are value-based methods.",
+        src: "Source: Policy Gradient Methods"
+    },
+    {
+        q: "What does the learning rate ($\\alpha$) control in reinforcement learning?",
+        opts: ["Weight of new information when updating estimates", "Probability of choosing a random action", "Probability of terminating an episode", "Number of states the agent can visit"],
+        a: 0,
+        exp: "The Learning Rate (Alpha, $\\alpha$) dictates how much the new experience (new information) will override the old, stored estimate (A). A high $\\alpha$ means the agent learns fast but can be unstable; a low $\\alpha$ means slow but steady learning. Exploration frequency (B) is typically controlled by epsilon ($\\epsilon$).",
+        src: "Source: Reinforcement Learning (Learning Rate)"
+    },
+    {
+        q: "What is the key benefit of the A* algorithm compared to BFS and DFS? ",
+        opts: ["Uses less memory than BFS", "Always faster than DFS", "Efficiently finds optimal paths using heuristics", "Guarantees shortest path in all cases"],
+        a: 2,
+        exp: "A* is an informed search algorithm that uses an admissible heuristic (h(n)) to guide the search towards the goal, making it highly efficient (C). While it is guaranteed to find the shortest path (optimal) (D) if the heuristic is admissible, its key benefit over uninformed search (like BFS/DFS) is its efficiency via informed guidance. BFS is better on memory (A) in many cases than A*.",
+        src: "Source: A* Search"
+    },
+    {
+        q: "Which data structure is primarily used in Breadth-First Search (BFS)?",
+        opts: ["Priority Queue", "Stack", "Queue", "Linked List"],
+        a: 2,
+        exp: "BFS uses a Queue (C) to ensure that nodes are expanded level by level (FIFO - First-In, First-Out). A Stack (B) is used for DFS, and a Priority Queue (A) is used for informed search algorithms like A* and Uniform-Cost Search.",
+        src: "Source: Search Algorithms (BFS)"
+    },
+    {
+        q: "What is the role of a stack in Depth-First Search (DFS)?",
+        opts: ["Tracking visited nodes", "Ensuring shortest path", "Facilitating backtracking", "Replacing recursion"],
+        a: 2,
+        exp: "DFS uses a Stack (LIFO - Last-In, First-Out) to store nodes along the current deep path. When a dead-end is reached, the stack enables the algorithm to 'backtrack' (C) to the most recent choice point to explore a different branch. Ensuring shortest path (B) is the domain of BFS or A*.",
+        src: "Source: Search Algorithms (DFS)"
+    },
+    {
+        q: "What are the four phases in the problem-solving process?",
+        opts: ["Goal, problem formulation, search, execution", "Identification, decision-making, execution, review", "Definition, search, execution, iteration", "None of the above"],
+        a: 0,
+        exp: "The standard four phases for a problem-solving agent are: Goal Formulation (deciding what to achieve), Problem Formulation (defining states and actions), Search (finding a sequence of actions/plan), and Execution (carrying out the plan) (A).",
+        src: "Source: Problem Solving Agent"
+    },
+    {
+        q: "Image recognition operates in a multi-agent environment.",
+        opts: ["True", "False"],
+        a: 1,
+        exp: "False. Image recognition is a Single-Agent problem. The agent's performance (classifying an image) is not affected by the actions of other independent, rational agents. Multi-agent environments involve interaction, like Chess or Traffic.",
+        src: "Source: Environment Types"
+    },
+    {
+        q: "A low R-squared value corresponds to a good model.",
+        opts: ["True", "False"],
+        a: 1,
+        exp: "False. R-squared (Coefficient of Determination) measures the proportion of the variance in the dependent variable that is predictable from the independent variables. A low R-squared indicates that the model explains little of the variability, suggesting a poor fit to the data.",
+        src: "Source: Regression Evaluation (R-squared)"
+    },
+    {
+        q: "Which is NOT typically a machine learning model parameter?",
+        opts: ["Weight", "Intercept", "Prediction", "Slope"],
+        a: 2,
+        exp: "A Prediction (C) is the output generated by the model. Model parameters (A, B, D)—like weights and biases in neural networks or the slope and intercept in linear regression—are the internal variables that the model learns and adjusts during the training process.",
+        src: "Source: Model Parameters"
+    },
+    {
+        q: "Which is NOT associated with Bayes’ theorem?",
+        opts: ["Chain rule", "Conditional probability", "Regularization", "Likelihood"],
+        a: 2,
+        exp: "Regularization (C) is a technique (e.g., L1, L2) used to prevent overfitting in models like regression and neural networks by penalizing complexity. Bayes' theorem is fundamentally built on concepts of Conditional Probability (B), Likelihood (D), and Prior Probability.",
+        src: "Source: Bayes' Theorem"
+    }
+];
+
+    // Logic
+    let currentIdx = 0;
+    let score = 0;
+    const ui = {
+        qNum: document.getElementById('qNum'),
+        totalQs: document.getElementById('totalQs'),
+        progressFill: document.getElementById('progressFill'),
+        questionText: document.getElementById('questionText'),
+        optionsGrid: document.getElementById('optionsGrid'),
+        feedbackArea: document.getElementById('feedbackArea'),
+        feedbackTitle: document.querySelector('#feedbackArea strong'),
+        feedbackReason: document.getElementById('feedbackReason'),
+        feedbackSource: document.getElementById('feedbackSource'),
+        navFooter: document.getElementById('navFooter'),
+        quizBody: document.getElementById('quizBody'),
+        resultsView: document.getElementById('resultsView'),
+        finalScoreDisplay: document.getElementById('finalScoreDisplay'),
+        finalMsg: document.getElementById('finalMsg'),
+        appHeader: document.getElementById('appHeader')
+    };
+
+
+    function loadQ() {
+        const item = db[currentIdx];
+        ui.qNum.innerText = currentIdx + 1;
+        
+        const pct = ((currentIdx) / db.length) * 100;
+        ui.progressFill.style.width = `${pct}%`;
+
+        // Used innerHTML for math rendering. Check if LaTeX is present.
+        ui.questionText.innerHTML = item.q;
+        
+        // Options are intentionally NOT shuffled to make it easier for students 
+        // who might be matching options quickly across different runs.
+        let indices = Array.from({length: item.opts.length}, (_, i) => i);
+
+        ui.optionsGrid.innerHTML = '';
+        
+        indices.forEach(idx => {
+            const btn = document.createElement('button');
+            btn.className = 'option';
+            // Use innerHTML to correctly render math symbols like $\gamma$
+            btn.innerHTML = item.opts[idx];
+            // Check if index matches the original correct answer index
+            const isCorrect = (idx === item.a);
+            btn.onclick = () => handleAnswer(isCorrect, btn, item);
+            ui.optionsGrid.appendChild(btn);
+        });
+
+        ui.feedbackArea.style.display = 'none';
+        ui.navFooter.style.display = 'none';
+        window.scrollTo(0,0);
+
+        // Call MathJax typesetting after elements are loaded
+        if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+            MathJax.typesetPromise([ui.questionText, ui.optionsGrid]).catch((err) => console.log('MathJax initial load error:', err));
+        }
+    }
+
+    function handleAnswer(isCorrect, btnEl, item) {
+        const allBtns = document.querySelectorAll('.option');
+        
+        allBtns.forEach(b => b.disabled = true);
+
+        if (isCorrect) {
+            score++;
+            btnEl.classList.add('correct');
+            ui.feedbackTitle.innerText = "Korrekt! (Correct)";
+            ui.feedbackTitle.style.color = "#065f46"; // Darker success green
+        } else {
+            btnEl.classList.add('wrong');
+            // Find and highlight the correct answer (using innerHTML for accurate math comparison)
+             allBtns.forEach(b => {
+                 if(b.innerHTML === item.opts[item.a]) {
+                     b.classList.add('correct');
+                     b.style.borderColor = "var(--success)"; // Ensure correct border is visible on the correct answer
+                 }
+               });
+
+            ui.feedbackTitle.innerText = "Inkorrekt (Incorrect)";
+            ui.feedbackTitle.style.color = "#b91c1c"; // Darker error red
+        }
+
+        ui.feedbackReason.innerHTML = item.exp;
+        ui.feedbackSource.innerText = item.src;
+        ui.feedbackArea.style.display = 'block';
+        ui.navFooter.style.display = 'flex';
+        
+        // Call MathJax typesetting for the feedback area
+        if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+            MathJax.typesetPromise([ui.feedbackArea]).catch((err) => console.log('MathJax feedback error:', err));
+        }
+    }
+
+    function nextQ() {
+        currentIdx++;
+        if (currentIdx < db.length) {
+            loadQ();
+        } else {
+            finishExam();
+        }
+    }
+
+    function finishExam() {
+        ui.quizBody.style.display = 'none';
+        ui.navFooter.style.display = 'none';
+        ui.appHeader.style.display = 'none';
+        ui.resultsView.style.display = 'block';
+
+        ui.finalScoreDisplay.innerText = `${score} / ${db.length}`;
+        
+        const percent = (score / db.length) * 100;
+        let msg = "";
+        if(percent >= 90) msg = "Enastående! Du är en AI Master.";
+        else if(percent >= 70) msg = "Bra jobbat! Du klarade gränsen.";
+        else if(percent >= 50) msg = "Bra start. Fortsätt repetera ämnena.";
+        else msg = "Fortsätt studera Agent Typer och Sökalgotitmer!";
+        
+        ui.finalMsg.innerText = msg;
+    }
+
+    
+    window.loadQ = loadQ; // Expose loadQ globally
+    window.nextQ = nextQ; // Expose nextQ globally
+    window.handleAnswer = handleAnswer; // Expose handleAnswer globally
+
+    loadQ();
+</script>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+    MathJax = {
+        tex: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        svg: {
+            fontCache: 'global'
+        },
+        // Remove the custom typesetting wrapper as MathJax is now manually triggered in loadQ and handleAnswer
+        // This ensures the page works reliably without complex function overwrites.
+    };
+    
+    // Initial typeset on load for any remaining text elements
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof MathJax !== 'undefined' && MathJax.typesetPromise) {
+            MathJax.typesetPromise().catch((err) => console.log('MathJax DOMContentLoaded error:', err));
+        }
+    });
+</script>
+
+
+</body>
+</html>
